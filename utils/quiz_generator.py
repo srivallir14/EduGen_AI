@@ -7,15 +7,23 @@ from langchain_core.output_parsers import StrOutputParser
 
 
 def _get_llm():
-    """Return an LLM — prefers Groq (free), falls back to OpenAI."""
+    """Return an LLM — prefers Groq (free), falls back to Gemini, then OpenAI."""
     groq_key = os.getenv("GROQ_API_KEY", "")
     openai_key = os.getenv("OPENAI_API_KEY", "")
+    google_key = os.getenv("GOOGLE_API_KEY", "")
 
     if groq_key:
         from langchain_groq import ChatGroq
         return ChatGroq(
             api_key=groq_key,
             model_name="llama-3.1-8b-instant",
+            temperature=0.4,
+        )
+    elif google_key:
+        from langchain_google_genai import ChatGoogleGenerativeAI
+        return ChatGoogleGenerativeAI(
+            google_api_key=google_key,
+            model="gemini-2.0-flash",
             temperature=0.4,
         )
     elif openai_key:
@@ -27,7 +35,7 @@ def _get_llm():
         )
     else:
         raise EnvironmentError(
-            "No API key found. Set GROQ_API_KEY or OPENAI_API_KEY in your .env file."
+            "No API key found. Set GROQ_API_KEY, GOOGLE_API_KEY or OPENAI_API_KEY in your .env file."
         )
 
 

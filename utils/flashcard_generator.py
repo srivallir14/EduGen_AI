@@ -4,21 +4,26 @@ import re
 from langchain_core.prompts import PromptTemplate
 from langchain_core.output_parsers import StrOutputParser
 
-
 def _get_llm():
     groq_key = os.getenv("GROQ_API_KEY", "")
     openai_key = os.getenv("OPENAI_API_KEY", "")
+    google_key = os.getenv("GOOGLE_API_KEY", "")
 
     if groq_key:
         from langchain_groq import ChatGroq
         return ChatGroq(api_key=groq_key, model_name="llama-3.1-8b-instant", temperature=0.3)
+    elif google_key:
+        from langchain_google_genai import ChatGoogleGenerativeAI
+        return ChatGoogleGenerativeAI(
+            google_api_key=google_key,
+            model="gemini-2.0-flash", 
+            temperature=0.3,
+        )
     elif openai_key:
         from langchain_openai import ChatOpenAI
         return ChatOpenAI(api_key=openai_key, model_name="gpt-3.5-turbo", temperature=0.3)
     else:
-        raise EnvironmentError("No API key found. Set GROQ_API_KEY or OPENAI_API_KEY in your .env file.")
-
-
+        raise EnvironmentError("No API key found. Set GROQ_API_KEY, GOOGLE_API_KEY or OPENAI_API_KEY in your .env file.")
 FLASHCARD_PROMPT = PromptTemplate.from_template(
     """You are an expert study material creator specializing in flashcards.
 
