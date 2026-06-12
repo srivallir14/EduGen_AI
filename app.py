@@ -7,7 +7,13 @@ sys.path.insert(0, os.path.dirname(__file__))
 
 from dotenv import load_dotenv
 load_dotenv()
+import streamlit as st
+for key in ("GROQ_API_KEY", "OPENAI_API_KEY"):
+    if key in st.secrets and not os.getenv(key):
+        os.environ[key] = st.secrets[key]
 
+if not os.getenv("GROQ_API_KEY"):
+    os.environ["GROQ_API_KEY"] = "gsk_xxx_your_actual_key_here"  # TEMP fallback
 from database.db import init_db
 
 # ── Page config ──────────────────────────────────────────────────────────────
@@ -236,7 +242,19 @@ with st.sidebar:
         ["🏠 Dashboard", "📤 Upload", "🧠 Quiz", "🃏 Flashcards", "📊 Analytics"],
         label_visibility="collapsed",
     )
+    st.markdown("---")
+    st.markdown("**🔑 API KEY**")
 
+    user_api_key = st.text_input(
+        "Enter your Groq API key",
+        type="password",
+        placeholder="gsk_...",
+        help="Get a free key at console.groq.com — it's only used for this session, never stored."
+)
+
+    if user_api_key:
+        os.environ["GROQ_API_KEY"] = user_api_key
+        st.success("Key set for this session ✅")
     st.markdown("---")
     st.markdown("**QUICK TIPS**")
     st.caption("• Use Groq API for free AI generation")
