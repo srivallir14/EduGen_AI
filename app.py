@@ -8,12 +8,15 @@ sys.path.insert(0, os.path.dirname(__file__))
 from dotenv import load_dotenv
 load_dotenv()
 import streamlit as st
-for key in ("GROQ_API_KEY", "OPENAI_API_KEY"):
-    if key in st.secrets and not os.getenv(key):
-        os.environ[key] = st.secrets[key]
+try:
+    for key in ("GROQ_API_KEY", "OPENAI_API_KEY"):
+        if key in st.secrets and not os.getenv(key):
+            os.environ[key] = st.secrets[key]
 
+except Exception:
+    pass
 if not os.getenv("GROQ_API_KEY"):
-    os.environ["GROQ_API_KEY"] = "gsk_xxx_your_actual_key_here"  # TEMP fallback
+    os.environ["GROQ_API_KEY"] = ""
 from database.db import init_db
 
 # ── Page config ──────────────────────────────────────────────────────────────
@@ -238,10 +241,16 @@ with st.sidebar:
     st.markdown("**NAVIGATION**")
 
     page = st.radio(
-        "Go to",
-        ["🏠 Dashboard", "📤 Upload", "🧠 Quiz", "🃏 Flashcards", "📊 Analytics"],
-        label_visibility="collapsed",
-    )
+    "Go to",
+    [
+        "🏠 Dashboard",
+        "📤 Upload",
+        "🧠 Quiz",
+        "🃏 Flashcards",
+        "📊 Analytics"
+    ],
+    label_visibility="collapsed",
+)
     st.markdown("---")
     st.markdown("**🔑 API KEY**")
 
@@ -310,4 +319,8 @@ elif page == "🃏 Flashcards":
 
 elif page == "📊 Analytics":
     from components.analytics_page import render
+    render()
+
+elif page == "📚 Study Tracker":
+    from components.study_tracker import render
     render()
